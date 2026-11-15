@@ -1,0 +1,16 @@
+# Build & Publish Artifacts
+bin/
+obj/
+publish/
+*.exe
+*.scs
+*.user
+.vs/
+
+# ATS Port & Temporary Work Files
+def/
+Planning.md
+ATS_Export_*/
+ATS_Import_*/
+ETS2_Export_*/
+ETS2_Import_*/
