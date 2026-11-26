@@ -89,10 +89,9 @@
       "TruckCountForOnline": "1"
     },
     "Revenue": {
-      "RevenuePerKmBase": "35",
+      "RevenueCoefPerKm": "2.00",
+      "CargoMarketRevenueCoefPerKm": "2.40",
       "FixedRevenue": "1500",
-      "RevenueCoefPerKm": "1.5",
-      "CargoMarketRevenueCoefPerKm": "1.8",
       "RewardBonusLevel": "0.03",
       "AbandonedJobFine": "1000",
       "CargoDamageCost": "1.0",
@@ -130,9 +129,14 @@
       "RefuelTimeBase": "600"
     },
     "Driver": {
+      "RevenuePerKmBase": "30",
       "MinimalDriverSalary": "250",
-      "DriverRevenueCoefPerKm": "1.2",
-      "DriverCargoMarketRevenueCoefPerKm": "1.4",
+      "DriverRevenueCoefPerKm": "1.20",
+      "DriverCargoMarketRevenueCoefPerKm": "1.50",
+      "FuelCostPerKmMin": "0.4",
+      "FuelCostPerKmMax": "0.7",
+      "DriverMaintenanceCostMin": "0.6",
+      "DriverMaintenanceCostMax": "1.0",
       "DriverHireCost": "500",
       "DriverMaxCargoDamage": "2.0",
       "FreeDriverLevelCap": "50",

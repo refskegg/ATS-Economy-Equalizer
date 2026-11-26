@@ -42,7 +42,7 @@ namespace ATS_ModTool
             string rawVersion = Assembly.GetExecutingAssembly()
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
                 ?? Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)
-                ?? "1.0.1";
+                ?? "1.0.2";
 
             int plusIdx = rawVersion.IndexOf('+');
             if (plusIdx > 0)
@@ -709,15 +709,31 @@ namespace ATS_ModTool
                 string normalized = textValue.Trim().Replace(',', '.');
                 if (prop.PropertyType == typeof(string))
                 {
-                    prop.SetValue(targetObj, normalized);
-                    inputBox.Tag = null;
+                    if (!string.IsNullOrWhiteSpace(normalized) &&
+                        System.Text.RegularExpressions.Regex.IsMatch(normalized, @"^-?\d+(\.\d+)?([eE][+-]?\d+)?$"))
+                    {
+                        string? oldVal = prop.GetValue(targetObj) as string;
+                        prop.SetValue(targetObj, normalized);
+                        inputBox.Tag = null;
+                        inputBox.Foreground = new SolidColorBrush(Color.FromRgb(243, 244, 246));
+                        if (!string.Equals(oldVal, normalized, StringComparison.Ordinal))
+                            ClearPresetSelection();
+                    }
+                    else
+                    {
+                        inputBox.Foreground = new SolidColorBrush(Color.FromRgb(248, 113, 113));
+                    }
                 }
                 else if (prop.PropertyType == typeof(double))
                 {
-                    if (double.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out double dVal))
+                    if (double.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out double dVal) &&
+                        !double.IsNaN(dVal) && !double.IsInfinity(dVal))
                     {
+                        double? oldVal = prop.GetValue(targetObj) as double?;
                         prop.SetValue(targetObj, dVal);
                         inputBox.Foreground = new SolidColorBrush(Color.FromRgb(243, 244, 246));
+                        if (oldVal != dVal)
+                            ClearPresetSelection();
                     }
                     else
                     {
@@ -728,8 +744,11 @@ namespace ATS_ModTool
                 {
                     if (int.TryParse(normalized, NumberStyles.Integer, CultureInfo.InvariantCulture, out int iVal))
                     {
+                        int? oldVal = prop.GetValue(targetObj) as int?;
                         prop.SetValue(targetObj, iVal);
                         inputBox.Foreground = new SolidColorBrush(Color.FromRgb(243, 244, 246));
+                        if (oldVal != iVal)
+                            ClearPresetSelection();
                     }
                     else
                     {
@@ -807,26 +826,26 @@ namespace ATS_ModTool
             txtPresetDescription.Text = cmbPresets.SelectedIndex switch
             {
                 0 => LocalizationManager.T(
-                    "Unveränderte Originalwerte von SCS Software (15 $ Basisrate, 14h US-DOT Schicht).",
-                    "Unmodified original SCS Software values ($15 base rate, 14h US DOT shift)."),
+                    "Unveränderte Originalwerte von SCS Software (Faktor 0,9 / 1,0 | 14h US-DOT Schicht).",
+                    "Unmodified original SCS Software values (Factor 0.9 / 1.0 | 14h US DOT shift)."),
                 1 => LocalizationManager.T(
-                    "Ausgewogene Wirtschaft (9 $ Basisrate, 11h US-DOT Lenkzeit, faire Kredite, reduzierter KI-Fahrer-Gewinn).",
-                    "Balanced economy ($9 base rate, 11h US DOT driving time, fair loans, reduced passive AI driver profit)."),
+                    "Ausgewogene Wirtschaft (~55–60 % Frachtvergütung, 11h US-DOT Lenkzeit, faire Kredite, gebremster KI-Gewinn).",
+                    "Balanced economy (~55–60% freight payout, 11h US DOT driving time, fair loans, reduced AI driver profit)."),
                 2 => LocalizationManager.T(
-                    "Echte US-Speditions-Simulation (2,20 $ Rate, 0,5 XP Faktor, 11h Lenk- / 10h Ruhezeit, knappe Margen).",
-                    "True US haulage simulation ($2.20 rate, 0.5 XP factor, 11h drive / 10h rest, tight real-world margins)."),
+                    "Echte US-Speditions-Simulation (~20 % Frachtvergütung, 0,5 XP/km, 11h Lenk- / 10h Ruhezeit, realistische KI-Margen).",
+                    "True US haulage simulation (~20% freight payout, 0.5 XP/km, 11h drive / 10h rest, realistic AI margins)."),
                 3 => LocalizationManager.T(
-                    "Fokus auf Gebraucht-Trucks: Großes & günstiges Angebot ab Level 0, günstigere Restauration.",
-                    "Focus on used trucks: Large & cheap assortment from Level 0, cheaper workshop restoration."),
+                    "Fokus auf Gebraucht-Trucks (~50 % Frachtvergütung, großes & günstiges Angebot ab Level 0, günstigere Restauration).",
+                    "Focus on used trucks (~50% freight payout, large & cheap assortment from Level 0, cheaper restoration)."),
                 4 => LocalizationManager.T(
-                    "Stressfreies Cruisen: 0 % Fahrzeug-/Frachtschaden, keine Bußgelder, 48h Lenkzeit & 18 $ Basisrate.",
-                    "Stress-free cruising: 0% vehicle/cargo damage, no police fines, 48h driving limit & $18 base rate."),
+                    "Stressfreies Cruisen: 0 % Fahrzeug-/Frachtschaden, keine Bußgelder, 48h Lenkzeit & ~125 % Frachtvergütung.",
+                    "Stress-free cruising: 0% vehicle/cargo damage, no police fines, 48h driving limit & ~125% freight payout."),
                 5 => LocalizationManager.T(
-                    "Schneller Aufstieg: 35 $ Basisrate, 2,5x XP, 0 % permanenter Verschleiß, günstige Kredite & Sofort-Unlocks.",
-                    "Fast progression: $35 base rate, 2.5x XP, 0% unfixable wear, cheap loans & instant unlocks."),
+                    "Schneller Aufstieg: >220 % Frachtvergütung, 2,5 XP/km, 0 % permanenter Verschleiß, günstige Kredite & Sofort-Unlocks.",
+                    "Fast progression: >220% freight payout, 2.5 XP/km, 0% unfixable wear, cheap loans & instant unlocks."),
                 _ => LocalizationManager.T(
-                    "Benutzerdefinierte Werte aus importierter Mod-Datei aktiv.",
-                    "Custom values from imported mod file active.")
+                    "Benutzerdefinierte Werte aus importierter/bearbeiteter Konfiguration aktiv.",
+                    "Custom values from imported or edited configuration active.")
             };
         }
 
@@ -961,7 +980,7 @@ namespace ATS_ModTool
                     PackageName = finalModName,
                     Author = finalAuthor,
                     Version = "1.0",
-                    Category = "economy",
+                    Category = "other",
                     Description = LocalizationManager.T(
                         $"Erstellt mit dem ATS Economy Equalizer ({finalModName}).",
                         $"Created with ATS Economy Equalizer ({finalModName}).")

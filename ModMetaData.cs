@@ -6,6 +6,6 @@ namespace ATS_ModTool
         public string Author { get; set; } = "Modder";
         public string Version { get; set; } = "1.0";
         public string Description { get; set; } = "Erstellt mit dem ATS Economy Equalizer.";
-        public string Category { get; set; } = "economy"; // e.g. economy, tuning, etc.
+        public string Category { get; set; } = "other"; // SCS standard category ("other" avoids Unknown category warning)
     }
 }

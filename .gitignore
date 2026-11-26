@@ -14,3 +14,6 @@ ATS_Export_*/
 ATS_Import_*/
 ETS2_Export_*/
 ETS2_Import_*/
+
+# Interne Bugfix- & Analyse-Dokumentation
+BF*.md
